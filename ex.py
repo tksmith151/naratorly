@@ -43,15 +43,17 @@ class RecAUD:
         self.buttons.pack(fill=tkinter.BOTH)
 
         # Start and Stop buttons
-        self.strt_rec = tkinter.Button(
+        self.record_button_text = tkinter.StringVar()
+        self.record_button_text.set("Start Recording")
+        self.record_button = tkinter.Button(
             self.buttons,
             width=10,
             padx=10,
             pady=5,
-            text="Start Recording",
+            textvariable=self.record_button_text,
             command=lambda: self.toggle_recording(),
         )
-        self.strt_rec.grid(row=0, column=0, padx=50, pady=5)
+        self.record_button.grid(row=0, column=0, padx=50, pady=5)
 
         tkinter.mainloop()
 
@@ -73,8 +75,17 @@ class RecAUD:
             self.start_recording()
 
     def start_recording(self):
+        self.record_button_text.set("Stop Recording")
         self.is_recording = True
         self.frames = []
+        self.record()
+        self.save_recording()
+
+    def stop_recording(self):
+        self.record_button_text.set("Start Recording")
+        self.is_recording = False
+
+    def record(self):
         stream = self.audio.open(
             format=self.FORMAT,
             channels=self.CHANNELS,
@@ -86,18 +97,15 @@ class RecAUD:
             data = stream.read(self.CHUNK)
             self.frames.append(data)
             self.main.update()
-
         stream.close()
 
-        wf = wave.open("test_recording.wav", "wb")
-        wf.setnchannels(self.CHANNELS)
-        wf.setsampwidth(self.audio.get_sample_size(self.FORMAT))
-        wf.setframerate(self.RATE_HZ)
-        wf.writeframes(b"".join(self.frames))
-        wf.close()
-
-    def stop_recording(self):
-        self.is_recording = False
+    def save_recording(self):
+        wave_file = wave.open("test_recording.wav", "wb")
+        wave_file.setnchannels(self.CHANNELS)
+        wave_file.setsampwidth(self.audio.get_sample_size(self.FORMAT))
+        wave_file.setframerate(self.RATE_HZ)
+        wave_file.writeframes(b"".join(self.frames))
+        wave_file.close()
 
 
 # Create an object of the ProgramGUI class to begin the program.
