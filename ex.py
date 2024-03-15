@@ -1,7 +1,7 @@
 import hashlib
 import tkinter
 import pyaudio
-import wave
+import pydub
 
 
 class AudioRecorder:
@@ -159,12 +159,29 @@ class AudioRecorder:
         stream.close()
 
     def save_recording(self):
-        wave_file = wave.open(f"{self.current_line_hash}.wav", "wb")
-        wave_file.setnchannels(self.CHANNELS)
-        wave_file.setsampwidth(self.audio.get_sample_size(self.FORMAT))
-        wave_file.setframerate(self.RATE_HZ)
-        wave_file.writeframes(b"".join(self.frames))
-        wave_file.close()
+        audio_segment = pydub.AudioSegment(
+            b"".join(self.frames),
+            sample_width=self.audio.get_sample_size(self.FORMAT),
+            channels=self.CHANNELS,
+            frame_rate=self.RATE_HZ,
+        )
+        # High Pass Filter
+        HIGH_PASS_FILTER_CUTOFF_HZ = 80
+        audio_segment.high_pass_filter(HIGH_PASS_FILTER_CUTOFF_HZ)
+        # Normalize
+        NORMALIZE_HEADROOM = 0.1
+        audio_segment.normalize(NORMALIZE_HEADROOM)
+        # Trim silence
+        # TODO: Make better maybe
+        MIN_SILENCE_LENGTH_MS = 1000
+        SILENCE_THRESHOLD = -16
+        PADDING_MS = 100
+        audio_segment.strip_silence(
+            silence_len=MIN_SILENCE_LENGTH_MS,
+            silence_thresh=SILENCE_THRESHOLD,
+            padding=PADDING_MS,
+        )
+        audio_segment.export(out_f=f"{self.current_line_hash}.wav", format="wav")
 
 
 if __name__ == "__main__":
