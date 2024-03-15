@@ -1,0 +1,3 @@
+This is an example line.
+The script continues.
+Here, the script ends.
