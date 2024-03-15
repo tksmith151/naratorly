@@ -49,18 +49,9 @@ class RecAUD:
             padx=10,
             pady=5,
             text="Start Recording",
-            command=lambda: self.start_recording(),
+            command=lambda: self.toggle_recording(),
         )
         self.strt_rec.grid(row=0, column=0, padx=50, pady=5)
-        self.stop_rec = tkinter.Button(
-            self.buttons,
-            width=10,
-            padx=10,
-            pady=5,
-            text="Stop Recording",
-            command=lambda: self.stop_recording(),
-        )
-        self.stop_rec.grid(row=1, column=0, columnspan=1, padx=50, pady=5)
 
         tkinter.mainloop()
 
