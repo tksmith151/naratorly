@@ -1,30 +1,30 @@
-# Import the necessary modules.
+import hashlib
 import tkinter
 import pyaudio
 import wave
 
 
-class RecAUD:
-
-    def __init__(
-        self,
-        chunk=1024,
-        audio_format=pyaudio.paInt16,
-        channels=2,
-        rate_hz=44100,
-    ):
+class AudioRecorder:
+    def __init__(self):
         # Audio Properties
-        self.CHUNK = chunk
-        self.FORMAT = audio_format
-        self.CHANNELS = channels
-        self.RATE_HZ = rate_hz
+        self.CHUNK = 1024
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = 2
+        self.RATE_HZ = 44100
         self.audio = pyaudio.PyAudio()
         self.frames = []
         self.is_recording = False
 
+        # Script
+        self.script_lines = [
+            "This is an example script line.",
+            "I should also read this second line.",
+            "This is the final line.",
+        ]
+        self.script_current_index = 0
+
         # Start Tkinter and set Title
         self.main = tkinter.Tk()
-        self.collections = []
         self.main.geometry("500x300")
         self.main.title("Record")
 
@@ -36,24 +36,50 @@ class RecAUD:
         )
         self.input_device_select.pack()
 
-        # Set Frames
-        self.buttons = tkinter.Frame(self.main, padx=120, pady=20)
-
-        # Pack Frame
-        self.buttons.pack(fill=tkinter.BOTH)
-
-        # Start and Stop buttons
+        # Record Button
         self.record_button_text = tkinter.StringVar()
         self.record_button_text.set("Start Recording")
         self.record_button = tkinter.Button(
-            self.buttons,
+            self.main,
             width=10,
             padx=10,
             pady=5,
             textvariable=self.record_button_text,
             command=lambda: self.toggle_recording(),
         )
-        self.record_button.grid(row=0, column=0, padx=50, pady=5)
+        self.record_button.pack()
+
+        # Next Button
+        self.next_button = tkinter.Button(
+            self.main,
+            width=10,
+            padx=10,
+            pady=5,
+            text="Next",
+            command=lambda: self.load_next_line(),
+        )
+        self.next_button.pack()
+
+        # Previous Button
+        self.previous_button = tkinter.Button(
+            self.main,
+            width=10,
+            padx=10,
+            pady=5,
+            text="Prev",
+            command=lambda: self.load_prev_line(),
+        )
+        self.previous_button.pack()
+
+        self.current_line = tkinter.StringVar()
+        self.load_line()
+        self.current_line_label = tkinter.Label(
+            self.main,
+            textvariable=self.current_line,
+            padx=10,
+            pady=5,
+        )
+        self.current_line_label.pack()
 
         tkinter.mainloop()
 
@@ -67,6 +93,35 @@ class RecAUD:
                 device_name = device_info.get("name")
                 output.append(f" {index} - {device_name}")
         return output
+
+    ###################
+    # Script Controls #
+    ###################
+
+    @property
+    def current_line_hash(self):
+        return hashlib.md5(
+            self.script_lines[self.script_current_index].encode("utf-8")
+        ).hexdigest()[0:16]
+
+    def load_next_line(self):
+        self.script_current_index = (self.script_current_index + 1) % len(
+            self.script_lines
+        )
+        self.load_line()
+
+    def load_prev_line(self):
+        self.script_current_index = (self.script_current_index - 1) % len(
+            self.script_lines
+        )
+        self.load_line()
+
+    def load_line(self):
+        self.current_line.set(self.script_lines[self.script_current_index])
+
+    ######################
+    # Recording Controls #
+    ######################
 
     def toggle_recording(self):
         if self.is_recording:
@@ -100,7 +155,7 @@ class RecAUD:
         stream.close()
 
     def save_recording(self):
-        wave_file = wave.open("test_recording.wav", "wb")
+        wave_file = wave.open(f"{self.current_line_hash}.wav", "wb")
         wave_file.setnchannels(self.CHANNELS)
         wave_file.setsampwidth(self.audio.get_sample_size(self.FORMAT))
         wave_file.setframerate(self.RATE_HZ)
@@ -108,5 +163,5 @@ class RecAUD:
         wave_file.close()
 
 
-# Create an object of the ProgramGUI class to begin the program.
-guiAUD = RecAUD()
+if __name__ == "__main__":
+    AudioRecorder = AudioRecorder()
