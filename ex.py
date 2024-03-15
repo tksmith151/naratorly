@@ -105,12 +105,16 @@ class AudioRecorder:
         ).hexdigest()[0:16]
 
     def load_next_line(self):
+        if self.is_recording:
+            return
         self.script_current_index = (self.script_current_index + 1) % len(
             self.script_lines
         )
         self.load_line()
 
     def load_prev_line(self):
+        if self.is_recording:
+            return
         self.script_current_index = (self.script_current_index - 1) % len(
             self.script_lines
         )
