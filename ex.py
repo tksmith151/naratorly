@@ -28,6 +28,17 @@ class AudioRecorder:
         self.main.geometry("500x300")
         self.main.title("Record")
 
+        # Load Script Button
+        self.load_script_button = tkinter.Button(
+            self.main,
+            width=10,
+            padx=10,
+            pady=5,
+            text="Load Script",
+            command=lambda: self.load_script(),
+        )
+        self.record_button.pack()
+
         # Set Input Select
         self.input_device = tkinter.StringVar(self.main)
         self.input_device.set(self.input_devices[0])
@@ -122,6 +133,9 @@ class AudioRecorder:
 
     def load_line(self):
         self.current_line.set(self.script_lines[self.script_current_index])
+
+    def load_script(self):
+        pass
 
     ######################
     # Recording Controls #

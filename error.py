@@ -1,0 +1,2 @@
+class NaratorlyError(Exception):
+    pass

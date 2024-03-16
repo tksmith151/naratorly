@@ -1,3 +1,7 @@
+
 This is an example line.
+
+     
+# This is a comment
 The script continues.
 Here, the script ends.
