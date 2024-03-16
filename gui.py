@@ -9,9 +9,6 @@ from script_handler import ScriptHandler
 
 class AudioRecorder:
     def __init__(self):
-        # Script File Path
-        self.script_file_path = None
-
         # Modules
         self.audio = AudioProcessor()
         self.connector = FileSystemConnector()
